@@ -1,6 +1,6 @@
 use crate::account::trading_manager::TradingManager;
 
-struct Trader {
+pub struct Trader {
     trading_manager: TradingManager,
 
 

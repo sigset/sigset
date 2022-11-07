@@ -41,7 +41,7 @@ pub trait TradingFees {
     }
 
     fn fees_on_amount(&self, order: Order) -> f64 {
-        return amount - takeFee(amount, orderType, side);
+        return order.get_partial_fill_total_price() - self.take_fee(order.get_partial_fill_total_price(), orderType, side);
     }
 
     fn fees_on_total_order_amount(&self, order: Order) -> f64 {

@@ -1,15 +1,23 @@
-use crate::strategies::indicator::Indicator;
 use crate::candles::aggregator::Aggregator;
 use crate::candles::candle::Candle;
+use crate::strategies::indicator::Indicator;
 
 pub trait IndicatorGroup {
+    fn is_initialized(&self) -> bool;
+
     fn initialize(&self, parent: Aggregator) {
+        if self.is_initialized() {
+            return;
+        }
+
         let indicators = self.get_indicators();
 
+        if indicators.is_empty() {
+            return;
+        }
+
         for indicator in indicators.iter() {
-            indicator.initialize(
-                candle,
-            );
+            indicator.initialize(&parent);
         }
     }
 

@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(PartialOrd, PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone)]
 pub struct Candle {
     pub open_time: u64,
     pub close_time: u64,
@@ -14,7 +14,7 @@ pub struct Candle {
 }
 
 impl Candle {
-    fn new(
+    pub fn new(
         open_time: u64,
         close_time: u64,
         open: f64,
@@ -35,11 +35,11 @@ impl Candle {
         }
     }
 
-    fn get_change(&self) -> f64 {
+    pub fn get_change(&self) -> f64 {
         (self.close / self.open) - 1.0
     }
 
-    fn set_merged(&mut self, merged: bool) {
+    pub fn set_merged(&mut self, merged: bool) {
         self.merged = merged;
     }
 
@@ -55,19 +55,19 @@ impl Candle {
         )
     }
 
-    fn is_close_positive(&self) -> bool {
+    pub fn is_close_positive(&self) -> bool {
         self.close > self.open
     }
 
-    fn is_green(&self) -> bool {
+    pub fn is_green(&self) -> bool {
         self.open <= self.close
     }
 
-    fn is_red(&self) -> bool {
+    pub fn is_red(&self) -> bool {
         self.open > self.close
     }
 
-    fn is_tick(&self) -> bool {
+    pub fn is_tick(&self) -> bool {
         self.open_time == self.close_time
         && self.open == self.close
         && self.close == self.high

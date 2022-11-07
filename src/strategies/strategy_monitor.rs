@@ -13,15 +13,15 @@ pub trait StrategyMonitor: IndicatorGroup {
         None
     }
 
-    fn discard_buy(&self, strategy: impl Strategy) -> boolean {
+    fn discard_buy(&self, strategy: impl Strategy) -> bool {
         false
     }
 
-    fn discard_short_sell(&self, strategy: impl Strategy) -> boolean {
+    fn discard_short_sell(&self, strategy: impl Strategy) -> bool {
         false
     }
 
-    fn allow_mixed_strategies(&self) -> boolean {
+    fn allow_mixed_strategies(&self) -> bool {
         true
     }
 
@@ -33,7 +33,7 @@ pub trait StrategyMonitor: IndicatorGroup {
 
     fn sold(&self, trade: Trade, order: Order) {}
 
-    fn allow_exit(&self, trade: Trade) -> boolean {
+    fn allow_exit(&self, trade: Trade) -> bool {
         true
     }
 
@@ -43,7 +43,7 @@ pub trait StrategyMonitor: IndicatorGroup {
         exit_symbol: String,
         candle: Candle,
         candle_ticker: String,
-    ) -> boolean {
+    ) -> bool {
         false
     }
 

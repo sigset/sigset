@@ -1,36 +1,56 @@
 use crate::account::order_request::OrderRequest;
 use crate::account::trade::{Trade, TradeSide};
-use std::alloc::Global;
 use std::cmp::Ordering;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OrderSide {
     Buy,
     Sell,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Default)]
 pub enum OrderType {
+    #[default]
     Limit,
     Market,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Default)]
 pub enum OrderStatus {
+    #[default]
     New,
     PartiallyFilled,
     Filled,
     Cancelled,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum TriggerCondition {
     None,
     StopLoss, // SL
     StopGain, // SG
 }
 
-#[derive(PartialOrd, PartialEq)]
+impl TriggerCondition {
+    pub fn from_str(s: &str) -> Option<TriggerCondition> {
+        match s {
+            "SL" => Some(TriggerCondition::StopLoss),
+            "SG" => Some(TriggerCondition::StopGain),
+            _ => None,
+        }
+    }
+
+    pub fn short_name(&self) -> &str {
+        match self {
+            TriggerCondition::StopLoss => "SL",
+            TriggerCondition::StopGain => "SG",
+            TriggerCondition::None => "",
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Order {
     pub order_request: OrderRequest,
 
@@ -74,8 +94,11 @@ impl Order {
         );
 
         Order {
-            order_request,
+            // order
+
             id,
+
+            order_request,
             order_id: format!("{}", id),
             processed: false,
             status: OrderStatus::New,
@@ -232,12 +255,80 @@ impl Order {
     }
 
     pub fn set_partial_fill_details(&mut self, fill_price: f64, filled_quantity: f64) {
-        this.partial_fill_price = fill_price;
-        this.partial_fill_quantity = filled_quantity;
+        self.partial_fill_price = fill_price;
+        self.partial_fill_quantity = filled_quantity;
     }
 
     pub fn internal_id(&self) -> u64 {
         self.id
+    }
+
+    pub fn set_trade(&mut self, trade: &Trade) {
+        self.trade = Some(trade.clone());
+    }
+
+    pub fn trade(&self) -> Option<&Trade> {
+        self.trade.as_ref()
+    }
+
+    pub fn get_time_elapsed(&self) -> u64 {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        now - self.order_request.time()
+    }
+
+    pub fn get_time_elapsed_since_close(
+        &self,
+        close_time: u64,
+    ) -> u64 {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        now - close_time
+    }
+
+    pub fn get_remaining_quantity(&self) -> f64 {
+        self.quantity() - self.executed_quantity()
+    }
+
+    pub fn get_total_traded_amount(&self) -> f64 {
+        self.executed_quantity() * self.get_price()
+    }
+
+    pub fn is_finalized(&self) -> bool {
+        self.status == OrderStatus::Filled
+            || self.status == OrderStatus::Cancelled
+    }
+
+    pub fn get_filled_ratio(&self) -> f64 {
+        if self.quantity() == 0.0 {
+            return 0.0;
+        }
+
+        self.executed_quantity() / self.quantity()
+    }
+
+    pub fn side_description(&self) -> String {
+        if self.order_request.is_short() {
+            if self.order_request.is_buy() {
+                "Short".to_string()
+            } else {
+                "Cover".to_string()
+            }
+        } else {
+            format!("{:?}", self.order_request.side())
+        }
+    }
+}
+
+impl PartialEq for Order {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
     }
 }
 
@@ -247,11 +338,5 @@ impl PartialOrd for Order {
             self.id
                 .cmp(&other.id),
         )
-    }
-}
-
-impl PartialEq for Order {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
     }
 }

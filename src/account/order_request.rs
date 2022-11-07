@@ -4,6 +4,7 @@ use super::order::{OrderSide, TriggerCondition};
 use super::trade::TradeSide;
 use crate::account::order::{OrderType, Order};
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OrderRequest {
     pub assets_symbol: String,
     pub funds_symbol: String,

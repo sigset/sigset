@@ -19,15 +19,11 @@ pub trait Indicator {
 
     fn initialize(
         &self,
-        aggregator: Aggregator,
-    ) {
-        // none
-    }
+        aggregator: &Aggregator,
+    );
 
     fn recalculate_every_tick(
         &self,
         recalculate_every_tick: bool,
-    ) {
-        // none
-    }
+    );
 }

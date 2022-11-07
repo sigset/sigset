@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use crate::candles::candle::Candle;
 
-static const MINUTE_MS: u64 = 60 * 1000;
+static MINUTE_MS: u64 = 60 * 1000;
 
 pub struct Aggregator {
     ms: u64,
@@ -50,7 +50,7 @@ impl Aggregator {
         }
 
         if elapsed == self.minutes {
-            if ms > 1 {
+            if self.ms > 1 {
                 let elapsed = candle.close_time - partial_candle.open_time;
 
                 if elapsed < self.ms {
@@ -81,7 +81,7 @@ impl Aggregator {
     }
 
     fn set_full(&mut self, full: &Candle) {
-        self.full = Some(Candle.clone());
+        self.full = Some(full.clone());
     }
 
     fn get_full(&self) -> Option<Candle> {

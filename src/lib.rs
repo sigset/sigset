@@ -4,6 +4,7 @@ mod indicators;
 mod strategies;
 mod client_account;
 mod trading_fees;
+mod simulation;
 
 #[cfg(test)]
 mod tests {
